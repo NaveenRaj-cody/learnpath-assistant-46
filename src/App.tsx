@@ -1,7 +1,10 @@
+
 import { useEffect, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { Toaster } from '@/components/ui/toaster';
 import { ThemeProvider } from '@/components/ui/theme-provider';
+import { Tooltip, TooltipProvider } from "@/components/ui/tooltip";
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import Index from '@/pages/Index';
 import About from '@/pages/About';
 import CoursesPage from '@/pages/CoursesPage';
@@ -17,6 +20,10 @@ import { ChatProvider } from '@/contexts/ChatContext';
 import { AuthProvider } from '@/contexts/AuthContext';
 import { initializeDatabaseWithData } from '@/utils/dbInitializer';
 import { useToast } from '@/components/ui/use-toast';
+import { Toaster as Sonner } from 'sonner';
+
+// Create a client
+const queryClient = new QueryClient();
 
 function App() {
   const { toast } = useToast();

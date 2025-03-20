@@ -101,11 +101,12 @@ export const seedDatabase = async () => {
       // Process colleges
       for (const college of course.topColleges) {
         // Check if college already exists
-        const [existingColleges] = await connection.query(
+        const [rows] = await connection.query(
           'SELECT id FROM colleges WHERE name = ?',
           [college.name]
         );
         
+        const existingColleges = rows as any[];
         let collegeId;
         
         if (existingColleges.length === 0) {
@@ -114,7 +115,7 @@ export const seedDatabase = async () => {
             'INSERT INTO colleges (name, location, ranking) VALUES (?, ?, ?)',
             [college.name, college.location, college.ranking]
           );
-          collegeId = result.insertId;
+          collegeId = (result as any).insertId;
           
           // Insert college features
           for (const feature of college.features) {
@@ -155,33 +156,37 @@ export const getAllCourses = async (): Promise<Course[]> => {
   const connection = await pool.getConnection();
   try {
     // Get all courses
-    const [courses] = await connection.query('SELECT * FROM courses');
+    const [coursesRows] = await connection.query('SELECT * FROM courses');
+    const courses = coursesRows as any[];
     
     // For each course, get its career prospects and colleges
     const fullCourses = await Promise.all(
       courses.map(async (course: any) => {
         // Get career prospects
-        const [careerProspects] = await connection.query(
+        const [careerRows] = await connection.query(
           'SELECT career_name FROM career_prospects WHERE course_id = ?',
           [course.id]
         );
+        const careerProspects = careerRows as any[];
         
         // Get associated colleges
-        const [collegeRefs] = await connection.query(
+        const [collegeRows] = await connection.query(
           `SELECT c.id, c.name, c.location, c.ranking 
            FROM colleges c
            JOIN course_colleges cc ON c.id = cc.college_id
            WHERE cc.course_id = ?`,
           [course.id]
         );
+        const collegeRefs = collegeRows as any[];
         
         // For each college, get its features
         const topColleges = await Promise.all(
           collegeRefs.map(async (college: any) => {
-            const [features] = await connection.query(
+            const [featureRows] = await connection.query(
               'SELECT feature FROM college_features WHERE college_id = ?',
               [college.id]
             );
+            const features = featureRows as any[];
             
             return {
               name: college.name,
@@ -218,7 +223,8 @@ export const getCourseById = async (id: string): Promise<Course | null> => {
   const connection = await pool.getConnection();
   try {
     // Get the course
-    const [courses] = await connection.query('SELECT * FROM courses WHERE id = ?', [id]);
+    const [coursesRows] = await connection.query('SELECT * FROM courses WHERE id = ?', [id]);
+    const courses = coursesRows as any[];
     
     if (courses.length === 0) {
       return null;
@@ -227,27 +233,30 @@ export const getCourseById = async (id: string): Promise<Course | null> => {
     const course = courses[0];
     
     // Get career prospects
-    const [careerProspects] = await connection.query(
+    const [careerRows] = await connection.query(
       'SELECT career_name FROM career_prospects WHERE course_id = ?',
       [course.id]
     );
+    const careerProspects = careerRows as any[];
     
     // Get associated colleges
-    const [collegeRefs] = await connection.query(
+    const [collegeRows] = await connection.query(
       `SELECT c.id, c.name, c.location, c.ranking 
        FROM colleges c
        JOIN course_colleges cc ON c.id = cc.college_id
        WHERE cc.course_id = ?`,
       [course.id]
     );
+    const collegeRefs = collegeRows as any[];
     
     // For each college, get its features
     const topColleges = await Promise.all(
       collegeRefs.map(async (college: any) => {
-        const [features] = await connection.query(
+        const [featureRows] = await connection.query(
           'SELECT feature FROM college_features WHERE college_id = ?',
           [college.id]
         );
+        const features = featureRows as any[];
         
         return {
           name: college.name,
@@ -307,11 +316,12 @@ export const saveCourse = async (course: Course): Promise<void> => {
     // Process colleges (more complex as we need to maintain references)
     for (const college of course.topColleges) {
       // Check if college exists
-      const [existingColleges] = await connection.query(
+      const [rows] = await connection.query(
         'SELECT id FROM colleges WHERE name = ?',
         [college.name]
       );
       
+      const existingColleges = rows as any[];
       let collegeId;
       
       if (existingColleges.length === 0) {
@@ -320,7 +330,7 @@ export const saveCourse = async (course: Course): Promise<void> => {
           'INSERT INTO colleges (name, location, ranking) VALUES (?, ?, ?)',
           [college.name, college.location, college.ranking]
         );
-        collegeId = result.insertId;
+        collegeId = (result as any).insertId;
         
         // Insert college features
         for (const feature of college.features) {

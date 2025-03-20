@@ -99,7 +99,8 @@ export const processMessage = async (
     lowerMessage.includes('study')
   ) {
     try {
-      const courses = await findRelevantCourses(message, filter);
+      const coursesResult = await findRelevantCourses(message, filter);
+      const courses = coursesResult;
       
       if (courses.length === 0) {
         return "I couldn't find any courses matching your criteria in India. Could you try a different search or be more specific about what you're looking for?";
@@ -139,66 +140,72 @@ export const processMessage = async (
     lowerMessage.includes('institution') ||
     lowerMessage.includes('school')
   ) {
-    // Find relevant courses first
-    const courses = findRelevantCourses(message, filter);
-    
-    if (courses.length === 0) {
-      return "I couldn't find any colleges in India matching your criteria. Could you try a different search or be more specific about what you're looking for?";
-    }
-    
-    // Get a random course to recommend colleges for
-    const selectedCourse = getRandomItem(courses);
-    
-    let response = `Here are some top colleges in India offering **${selectedCourse.name}**:\n\n`;
-    
-    // Filter to only show Indian colleges
-    const indianColleges = selectedCourse.topColleges.filter(college => 
-      college.location.includes('India')
-    );
-    
-    if (indianColleges.length === 0) {
-      response = `I couldn't find specific Indian colleges for ${selectedCourse.name} in our database. However, here are some top institutions for this field in India:\n\n`;
+    try {
+      // Find relevant courses first
+      const coursesResult = await findRelevantCourses(message, filter);
+      const courses = coursesResult;
       
-      // Provide some generic Indian colleges based on the field
-      const genericColleges = [
-        {
-          name: getGenericCollegeName(selectedCourse.field),
-          location: getRandomIndianCity(),
-          ranking: "Top-ranked in India",
-          features: ["Quality education", "Good placement record", "Modern facilities"]
-        },
-        {
-          name: getAlternativeCollegeName(selectedCourse.field),
-          location: getRandomIndianCity(),
-          ranking: "Among top 10 in India",
-          features: ["Industry partnerships", "Research opportunities", "Experienced faculty"]
-        }
-      ];
+      if (courses.length === 0) {
+        return "I couldn't find any colleges in India matching your criteria. Could you try a different search or be more specific about what you're looking for?";
+      }
       
-      genericColleges.forEach((college, index) => {
-        response += `**${college.name}**\n`;
-        response += `**Location:** ${college.location}\n`;
-        response += `**Ranking:** ${college.ranking}\n`;
-        response += `**Notable Features:** ${college.features.join(', ')}\n`;
+      // Get a random course to recommend colleges for
+      const selectedCourse = getRandomItem(courses);
+      
+      let response = `Here are some top colleges in India offering **${selectedCourse.name}**:\n\n`;
+      
+      // Filter to only show Indian colleges
+      const indianColleges = selectedCourse.topColleges.filter(college => 
+        college.location.includes('India')
+      );
+      
+      if (indianColleges.length === 0) {
+        response = `I couldn't find specific Indian colleges for ${selectedCourse.name} in our database. However, here are some top institutions for this field in India:\n\n`;
         
-        if (index < genericColleges.length - 1) {
-          response += "\n---\n\n";
-        }
-      });
-    } else {
-      indianColleges.slice(0, 3).forEach((college, index) => {
-        response += `**${college.name}**\n`;
-        response += `**Location:** ${college.location}\n`;
-        response += `**Ranking:** ${college.ranking}\n`;
-        response += `**Notable Features:** ${college.features.join(', ')}\n`;
+        // Provide some generic Indian colleges based on the field
+        const genericColleges = [
+          {
+            name: getGenericCollegeName(selectedCourse.field),
+            location: getRandomIndianCity(),
+            ranking: "Top-ranked in India",
+            features: ["Quality education", "Good placement record", "Modern facilities"]
+          },
+          {
+            name: getAlternativeCollegeName(selectedCourse.field),
+            location: getRandomIndianCity(),
+            ranking: "Among top 10 in India",
+            features: ["Industry partnerships", "Research opportunities", "Experienced faculty"]
+          }
+        ];
         
-        if (index < Math.min(indianColleges.length, 3) - 1) {
-          response += "\n---\n\n";
-        }
-      });
+        genericColleges.forEach((college, index) => {
+          response += `**${college.name}**\n`;
+          response += `**Location:** ${college.location}\n`;
+          response += `**Ranking:** ${college.ranking}\n`;
+          response += `**Notable Features:** ${college.features.join(', ')}\n`;
+          
+          if (index < genericColleges.length - 1) {
+            response += "\n---\n\n";
+          }
+        });
+      } else {
+        indianColleges.slice(0, 3).forEach((college, index) => {
+          response += `**${college.name}**\n`;
+          response += `**Location:** ${college.location}\n`;
+          response += `**Ranking:** ${college.ranking}\n`;
+          response += `**Notable Features:** ${college.features.join(', ')}\n`;
+          
+          if (index < Math.min(indianColleges.length, 3) - 1) {
+            response += "\n---\n\n";
+          }
+        });
+      }
+      
+      return response;
+    } catch (error) {
+      console.error('Error processing college message:', error);
+      return "I'm having trouble accessing the college database at the moment. Please try again later.";
     }
-    
-    return response;
   }
   
   // Check if the message is asking about jobs or careers
@@ -210,43 +217,49 @@ export const processMessage = async (
     lowerMessage.includes('salary') ||
     lowerMessage.includes('opportunity')
   ) {
-    // Find relevant courses first
-    const courses = findRelevantCourses(message, filter);
-    
-    if (courses.length === 0) {
-      return "I couldn't find any career paths in India matching your criteria. Could you try a different search or be more specific about what you're looking for?";
-    }
-    
-    // Get a random course to recommend careers for
-    const selectedCourse = getRandomItem(courses);
-    
-    let response = `After completing **${selectedCourse.name}** in India, you could pursue these career paths:\n\n`;
-    
-    selectedCourse.careerProspects.forEach((career, index) => {
-      response += `**${career}**\n`;
+    try {
+      // Find relevant courses first
+      const coursesResult = await findRelevantCourses(message, filter);
+      const courses = coursesResult;
       
-      // Generate a realistic Indian salary range for the career
-      const baseSalary = getIndianSalaryRange(selectedCourse.field, career).min;
-      const maxSalary = getIndianSalaryRange(selectedCourse.field, career).max;
-      
-      response += `**Salary Range in India:** ₹${baseSalary.toLocaleString()} - ₹${maxSalary.toLocaleString()} per annum\n`;
-      
-      // Generate realistic growth rate for Indian market
-      const growthRate = getIndianGrowthRate(selectedCourse.field);
-      response += `**Industry Growth in India:** ${growthRate}% annually\n`;
-      
-      // Add India-specific companies that hire for this role
-      const companies = getIndianCompanies(career, selectedCourse.field);
-      response += `**Top Hiring Companies:** ${companies.join(', ')}\n`;
-      
-      if (index < selectedCourse.careerProspects.length - 1) {
-        response += "\n---\n\n";
+      if (courses.length === 0) {
+        return "I couldn't find any career paths in India matching your criteria. Could you try a different search or be more specific about what you're looking for?";
       }
-    });
-    
-    response += "\n\nWould you like more specific information about any of these career paths in India?";
-    
-    return response;
+      
+      // Get a random course to recommend careers for
+      const selectedCourse = getRandomItem(courses);
+      
+      let response = `After completing **${selectedCourse.name}** in India, you could pursue these career paths:\n\n`;
+      
+      selectedCourse.careerProspects.forEach((career, index) => {
+        response += `**${career}**\n`;
+        
+        // Generate a realistic Indian salary range for the career
+        const baseSalary = getIndianSalaryRange(selectedCourse.field, career).min;
+        const maxSalary = getIndianSalaryRange(selectedCourse.field, career).max;
+        
+        response += `**Salary Range in India:** ₹${baseSalary.toLocaleString()} - ₹${maxSalary.toLocaleString()} per annum\n`;
+        
+        // Generate realistic growth rate for Indian market
+        const growthRate = getIndianGrowthRate(selectedCourse.field);
+        response += `**Industry Growth in India:** ${growthRate}% annually\n`;
+        
+        // Add India-specific companies that hire for this role
+        const companies = getIndianCompanies(career, selectedCourse.field);
+        response += `**Top Hiring Companies:** ${companies.join(', ')}\n`;
+        
+        if (index < selectedCourse.careerProspects.length - 1) {
+          response += "\n---\n\n";
+        }
+      });
+      
+      response += "\n\nWould you like more specific information about any of these career paths in India?";
+      
+      return response;
+    } catch (error) {
+      console.error('Error processing career message:', error);
+      return "I'm having trouble accessing the career database at the moment. Please try again later.";
+    }
   }
   
   // General greeting or introduction
