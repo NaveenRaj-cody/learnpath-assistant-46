@@ -23,31 +23,43 @@ const GraduationCapWithDiploma = ({ position, rotationSpeed = 0.01 }) => {
   return (
     <group position={position} ref={group}>
       {/* Cap Base - Cylindrical part */}
-      <mesh position={[0, 0, 0]}>
+      <mesh position={[0, 0, 0]} castShadow receiveShadow>
         <cylinderGeometry args={[0.7, 0.7, 0.3, 32]} />
-        <meshStandardMaterial color={isDark ? "#0f172a" : "#1e3a8a"} />
+        <meshStandardMaterial 
+          color={isDark ? "#0f172a" : "#1e3a8a"} 
+          transparent
+          opacity={0.9}
+          metalness={0.3}
+          roughness={0.7}
+        />
       </mesh>
       
       {/* Cap Top - Square part */}
-      <mesh position={[0, 0.25, 0]} rotation={[0, Math.PI / 4, 0]}>
+      <mesh position={[0, 0.25, 0]} rotation={[0, Math.PI / 4, 0]} castShadow receiveShadow>
         <boxGeometry args={[1.8, 0.1, 1.8]} />
-        <meshStandardMaterial color={isDark ? "#0f172a" : "#1e3a8a"} />
+        <meshStandardMaterial 
+          color={isDark ? "#0f172a" : "#1e3a8a"} 
+          transparent
+          opacity={0.9}
+          metalness={0.3}
+          roughness={0.7}
+        />
       </mesh>
       
       {/* Tassel Button */}
-      <mesh position={[0, 0.31, 0]}>
+      <mesh position={[0, 0.31, 0]} castShadow>
         <cylinderGeometry args={[0.1, 0.1, 0.05, 16]} />
         <meshStandardMaterial color={isDark ? "#0f172a" : "#0d2b76"} />
       </mesh>
       
       {/* Tassel String */}
-      <mesh position={[0.6, 0.1, 0.6]}>
+      <mesh position={[0.6, 0.1, 0.6]} castShadow>
         <cylinderGeometry args={[0.02, 0.02, 0.7, 8]} />
         <meshStandardMaterial color={isDark ? "#f59e0b" : "#fbbf24"} />
       </mesh>
       
       {/* Tassel End */}
-      <mesh position={[0.6, -0.3, 0.6]}>
+      <mesh position={[0.6, -0.3, 0.6]} castShadow>
         <cylinderGeometry args={[0.08, 0.08, 0.15, 8]} />
         <meshStandardMaterial color={isDark ? "#1e3a8a" : "#1e40af"} />
       </mesh>
@@ -55,24 +67,29 @@ const GraduationCapWithDiploma = ({ position, rotationSpeed = 0.01 }) => {
       {/* Diploma */}
       <group position={[1.5, 0, 0]} rotation={[0, 0, Math.PI * 0.1]}>
         {/* Diploma Scroll */}
-        <mesh>
+        <mesh castShadow receiveShadow>
           <cylinderGeometry args={[0.2, 0.2, 1.2, 16, 1, true]} />
-          <meshStandardMaterial color={isDark ? "#fef3c7" : "#fef9c3"} side={THREE.DoubleSide} />
+          <meshStandardMaterial 
+            color={isDark ? "#fef3c7" : "#fef9c3"} 
+            side={THREE.DoubleSide} 
+            transparent
+            opacity={0.95}
+          />
         </mesh>
         
         {/* Diploma End Caps */}
-        <mesh position={[0, 0.6, 0]}>
+        <mesh position={[0, 0.6, 0]} castShadow>
           <cylinderGeometry args={[0.2, 0.2, 0.05, 16]} />
           <meshStandardMaterial color={isDark ? "#fef3c7" : "#fef9c3"} />
         </mesh>
         
-        <mesh position={[0, -0.6, 0]}>
+        <mesh position={[0, -0.6, 0]} castShadow>
           <cylinderGeometry args={[0.2, 0.2, 0.05, 16]} />
           <meshStandardMaterial color={isDark ? "#fef3c7" : "#fef9c3"} />
         </mesh>
         
         {/* Diploma Ribbon */}
-        <mesh position={[0, 0, 0]}>
+        <mesh position={[0, 0, 0]} castShadow>
           <torusGeometry args={[0.25, 0.05, 16, 100, Math.PI * 0.5]} />
           <meshStandardMaterial color={isDark ? "#dc2626" : "#ef4444"} />
         </mesh>
@@ -82,11 +99,12 @@ const GraduationCapWithDiploma = ({ position, rotationSpeed = 0.01 }) => {
 };
 
 const FloatingGraduationItems = () => {
-  const items = Array.from({ length: 15 }).map((_, i) => ({
+  // Reduce the number of items to improve performance and reduce text overlap
+  const items = Array.from({ length: 10 }).map((_, i) => ({
     position: [
       (Math.random() - 0.5) * 20,
       (Math.random() - 0.5) * 20,
-      (Math.random() - 0.5) * 20
+      (Math.random() - 0.5) * 20 - 5 // Push items back a bit to reduce text overlap
     ],
     speed: Math.random() * 0.01 + 0.001
   }));
@@ -109,15 +127,44 @@ const ThreeDBackground: React.FC = () => {
   const isDark = theme === 'dark';
   
   return (
-    <div className="fixed inset-0 -z-10 w-full h-full">
-      <Canvas camera={{ position: [0, 0, 20], fov: 60 }}>
+    <div className="fixed inset-0 -z-10 w-full h-full pointer-events-none">
+      <Canvas 
+        camera={{ position: [0, 0, 20], fov: 60 }}
+        shadows
+        dpr={[1, 2]} // Optimize rendering for different device pixel ratios
+        gl={{ 
+          antialias: true,
+          alpha: true, 
+          stencil: false,
+          depth: true,
+          logarithmicDepthBuffer: true // Helps with z-fighting
+        }}
+      >
         <ambientLight intensity={isDark ? 0.3 : 0.6} />
         <directionalLight
           position={[10, 10, 5]}
           intensity={isDark ? 0.5 : 0.8}
           color={isDark ? "#8b5cf6" : "#ffffff"}
+          castShadow
+          shadow-mapSize={[512, 512]}
         />
-        <pointLight position={[-10, -10, -10]} intensity={isDark ? 0.2 : 0.5} color={isDark ? "#4c1d95" : "#c4b5fd"} />
+        <pointLight 
+          position={[-10, -10, -10]} 
+          intensity={isDark ? 0.2 : 0.5} 
+          color={isDark ? "#4c1d95" : "#c4b5fd"} 
+        />
+        
+        {/* Add a subtle, semi-transparent plane that helps with depth perception */}
+        <mesh position={[0, 0, -10]} receiveShadow>
+          <planeGeometry args={[100, 100]} />
+          <meshStandardMaterial 
+            color={isDark ? "#020617" : "#f1f5f9"} 
+            transparent
+            opacity={0.1}
+            side={THREE.DoubleSide}
+          />
+        </mesh>
+        
         <FloatingGraduationItems />
         <OrbitControls 
           enableZoom={false} 
@@ -125,6 +172,7 @@ const ThreeDBackground: React.FC = () => {
           enableRotate={true}
           autoRotate={true}
           autoRotateSpeed={0.5}
+          rotateSpeed={0.5} // Slow down rotation for better text reading
         />
         <fog attach="fog" args={[isDark ? "#020617" : "#f8fafc", 5, 30]} />
       </Canvas>

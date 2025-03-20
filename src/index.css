@@ -78,15 +78,16 @@
   }
 
   h1, h2, h3, h4, h5, h6 {
-    @apply text-foreground font-medium tracking-tight;
+    @apply text-foreground font-medium tracking-tight relative z-10;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
   }
 
   p, li, span {
-    @apply text-foreground/90 leading-relaxed;
+    @apply text-foreground/90 leading-relaxed relative z-10;
   }
 
   a {
-    @apply text-primary hover:text-primary/80 transition-colors;
+    @apply text-primary hover:text-primary/80 transition-colors relative z-10;
   }
 
   /* Custom scrollbar styling */
@@ -130,7 +131,7 @@
 
 @layer components {
   .glass-panel {
-    @apply backdrop-blur-lg bg-white/10 dark:bg-black/20 border border-white/20 dark:border-white/10 shadow-lg;
+    @apply backdrop-blur-lg bg-white/10 dark:bg-black/20 border border-white/20 dark:border-white/10 shadow-lg relative z-10;
   }
   
   .glass-input {
@@ -165,7 +166,18 @@
 
   /* Card consistent styling */
   .styled-card {
-    @apply border border-border bg-card shadow-sm hover:shadow-md transition-shadow rounded-lg overflow-hidden;
+    @apply border border-border bg-card shadow-sm hover:shadow-md transition-shadow rounded-lg overflow-hidden relative z-10;
+  }
+  
+  /* 3D text effect for better legibility over the 3D background */
+  .text-3d {
+    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.4), 0 2px 5px rgba(0, 0, 0, 0.1);
+    @apply relative z-10;
+  }
+  
+  /* Content wrapper with backdrop blur for better text legibility */
+  .content-wrapper {
+    @apply relative z-10 bg-background/70 dark:bg-background/50 backdrop-blur-sm;
   }
 }
 
@@ -229,4 +241,14 @@ html {
 
 .star-empty {
   @apply text-amber-500 fill-none;
+}
+
+/* Main content needs to be above the 3D background */
+main, header, footer, .card, .button, input, select {
+  @apply relative z-10;
+}
+
+/* Add a subtle text shadow to improve text legibility over the 3D background */
+h1, h2, h3, .card-title, .button-text {
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
