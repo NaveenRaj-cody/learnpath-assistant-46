@@ -1,24 +1,14 @@
+
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Header from '@/components/Header';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { MapPin, GraduationCap, Users, Building, Award, Star } from 'lucide-react';
+import { MapPin, GraduationCap, Users, Briefcase, Award, Star } from 'lucide-react';
 import { coursesData, Course } from '@/data/coursesData';
 import AnimatedTransition from '@/components/AnimatedTransition';
-
-const courseCutoffs: Record<string, { general: string; obc: string; sc: string; st: string }> = {
-  "cs-btech": { general: "98.5%", obc: "96.2%", sc: "92.1%", st: "90.3%" },
-  "medicine-mbbs": { general: "99.1%", obc: "97.5%", sc: "94.3%", st: "92.5%" },
-  "business-bba": { general: "92.4%", obc: "89.8%", sc: "85.6%", st: "83.2%" },
-  "eng-mtech": { general: "94.2%", obc: "91.8%", sc: "88.5%", st: "86.1%" },
-  "med-md": { general: "98.8%", obc: "97.2%", sc: "94.0%", st: "92.1%" },
-  "biz-mba": { general: "96.5%", obc: "94.2%", sc: "90.8%", st: "88.5%" },
-  "design-bdes": { general: "93.7%", obc: "91.3%", sc: "87.4%", st: "85.1%" },
-  "science-bsc": { general: "95.3%", obc: "92.7%", sc: "88.9%", st: "86.4%" }
-};
 
 const CollegeDetailsPage = () => {
   const { collegeName } = useParams();
@@ -61,6 +51,9 @@ const CollegeDetailsPage = () => {
     );
   }
 
+  // Generate a random star rating between 4.0 and 5.0
+  const starRating = (4 + Math.random()).toFixed(1);
+
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <Header />
@@ -84,6 +77,15 @@ const CollegeDetailsPage = () => {
                     <MapPin className="h-3.5 w-3.5" />
                     {collegeDetails.location}
                   </CardDescription>
+                  <div className="flex items-center mt-2 text-amber-500">
+                    {[...Array(5)].map((_, i) => (
+                      <Star 
+                        key={i} 
+                        className={`h-4 w-4 ${i < Math.floor(Number(starRating)) ? 'fill-amber-500' : 'fill-none'}`} 
+                      />
+                    ))}
+                    <span className="ml-1 text-sm">{starRating}</span>
+                  </div>
                 </div>
                 <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20">
                   {collegeDetails.ranking}
@@ -96,7 +98,7 @@ const CollegeDetailsPage = () => {
             <TabsList className="w-full justify-start mb-4 bg-muted/50">
               <TabsTrigger value="overview">Overview</TabsTrigger>
               <TabsTrigger value="courses">Courses</TabsTrigger>
-              <TabsTrigger value="campus">Campus</TabsTrigger>
+              <TabsTrigger value="placement">Placement</TabsTrigger>
               <TabsTrigger value="alumni">Alumni</TabsTrigger>
             </TabsList>
             
@@ -104,7 +106,7 @@ const CollegeDetailsPage = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
-                    <Building className="h-4 w-4 text-primary" />
+                    <Award className="h-4 w-4 text-primary" />
                     College Profile
                   </h3>
                   <Card className="bg-muted/30 border-primary/10 h-full">
@@ -200,24 +202,11 @@ const CollegeDetailsPage = () => {
                     <CardContent className="pb-2">
                       <div className="space-y-3">
                         <div>
-                          <h4 className="text-sm font-medium mb-2">Minimum Cut-offs:</h4>
-                          <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm">
-                            <div className="flex justify-between">
-                              <span className="text-muted-foreground">General:</span>
-                              <span className="font-medium">{courseCutoffs[course.id]?.general || "95%+"}</span>
-                            </div>
-                            <div className="flex justify-between">
-                              <span className="text-muted-foreground">OBC:</span>
-                              <span className="font-medium">{courseCutoffs[course.id]?.obc || "90%+"}</span>
-                            </div>
-                            <div className="flex justify-between">
-                              <span className="text-muted-foreground">SC:</span>
-                              <span className="font-medium">{courseCutoffs[course.id]?.sc || "85%+"}</span>
-                            </div>
-                            <div className="flex justify-between">
-                              <span className="text-muted-foreground">ST:</span>
-                              <span className="font-medium">{courseCutoffs[course.id]?.st || "80%+"}</span>
-                            </div>
+                          <h4 className="text-sm font-medium mb-2">Minimum Cut-off:</h4>
+                          <div className="text-sm flex items-center">
+                            <span className="font-medium bg-primary/10 text-primary px-3 py-1 rounded-full">
+                              {(parseInt(Math.random() * 5 + 93 + "") + "%")}
+                            </span>
                           </div>
                         </div>
                       </div>
@@ -227,36 +216,50 @@ const CollegeDetailsPage = () => {
               </div>
             </TabsContent>
             
-            <TabsContent value="campus" className="mt-0">
+            <TabsContent value="placement" className="mt-0">
               <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                <Building className="h-4 w-4 text-primary" />
-                Campus Overview
+                <Briefcase className="h-4 w-4 text-primary" />
+                Placement Details
               </h3>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <Card className="border border-muted hover:shadow-md transition-all">
                   <CardHeader>
-                    <CardTitle>Facilities</CardTitle>
+                    <CardTitle>Placement Statistics</CardTitle>
                   </CardHeader>
                   <CardContent>
                     <ul className="space-y-2">
-                      <li>Library</li>
-                      <li>Sports Complex</li>
-                      <li>Student Center</li>
-                      <li>Research Labs</li>
+                      <li className="flex justify-between items-center">
+                        <span>Placement Rate</span>
+                        <span className="font-semibold text-primary">95%</span>
+                      </li>
+                      <li className="flex justify-between items-center">
+                        <span>Average Package</span>
+                        <span className="font-semibold text-primary">₹12 LPA</span>
+                      </li>
+                      <li className="flex justify-between items-center">
+                        <span>Highest Package</span>
+                        <span className="font-semibold text-primary">₹45 LPA</span>
+                      </li>
+                      <li className="flex justify-between items-center">
+                        <span>Companies Visited</span>
+                        <span className="font-semibold text-primary">150+</span>
+                      </li>
                     </ul>
                   </CardContent>
                 </Card>
                 
                 <Card className="border border-muted hover:shadow-md transition-all">
                   <CardHeader>
-                    <CardTitle>Infrastructure</CardTitle>
+                    <CardTitle>Top Recruiters</CardTitle>
                   </CardHeader>
                   <CardContent>
                     <ul className="space-y-2">
-                      <li>500 acres of land</li>
-                      <li>100 classrooms</li>
-                      <li>200 labs</li>
+                      <li>Google</li>
+                      <li>Microsoft</li>
+                      <li>Amazon</li>
+                      <li>Adobe</li>
+                      <li>Goldman Sachs</li>
                     </ul>
                   </CardContent>
                 </Card>
@@ -272,7 +275,16 @@ const CollegeDetailsPage = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <Card className="border border-muted hover:shadow-md transition-all">
                   <CardHeader>
-                    <CardTitle>Sundar Pichai</CardTitle>
+                    <div className="flex items-center gap-4">
+                      <div className="w-16 h-16 rounded-full overflow-hidden bg-muted">
+                        <img 
+                          src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=250&h=250&fit=crop" 
+                          alt="Sundar Pichai" 
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                      <CardTitle>Sundar Pichai</CardTitle>
+                    </div>
                   </CardHeader>
                   <CardContent>
                     <p className="text-sm">CEO of Google</p>
@@ -281,7 +293,16 @@ const CollegeDetailsPage = () => {
                 
                 <Card className="border border-muted hover:shadow-md transition-all">
                   <CardHeader>
-                    <CardTitle>Satya Nadella</CardTitle>
+                    <div className="flex items-center gap-4">
+                      <div className="w-16 h-16 rounded-full overflow-hidden bg-muted">
+                        <img 
+                          src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=250&h=250&fit=crop" 
+                          alt="Satya Nadella" 
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                      <CardTitle>Satya Nadella</CardTitle>
+                    </div>
                   </CardHeader>
                   <CardContent>
                     <p className="text-sm">CEO of Microsoft</p>
@@ -290,7 +311,16 @@ const CollegeDetailsPage = () => {
                 
                 <Card className="border border-muted hover:shadow-md transition-all">
                   <CardHeader>
-                    <CardTitle>N. R. Narayana Murthy</CardTitle>
+                    <div className="flex items-center gap-4">
+                      <div className="w-16 h-16 rounded-full overflow-hidden bg-muted">
+                        <img 
+                          src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=250&h=250&fit=crop" 
+                          alt="N. R. Narayana Murthy" 
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                      <CardTitle>N. R. Narayana Murthy</CardTitle>
+                    </div>
                   </CardHeader>
                   <CardContent>
                     <p className="text-sm">Co-founder of Infosys</p>
@@ -299,7 +329,16 @@ const CollegeDetailsPage = () => {
                 
                 <Card className="border border-muted hover:shadow-md transition-all">
                   <CardHeader>
-                    <CardTitle>Nandan Nilekani</CardTitle>
+                    <div className="flex items-center gap-4">
+                      <div className="w-16 h-16 rounded-full overflow-hidden bg-muted">
+                        <img 
+                          src="https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=250&h=250&fit=crop" 
+                          alt="Nandan Nilekani" 
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                      <CardTitle>Nandan Nilekani</CardTitle>
+                    </div>
                   </CardHeader>
                   <CardContent>
                     <p className="text-sm">Co-founder of Infosys</p>

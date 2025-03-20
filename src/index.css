@@ -77,6 +77,18 @@
     font-feature-settings: "rlig" 1, "calt" 1;
   }
 
+  h1, h2, h3, h4, h5, h6 {
+    @apply text-foreground font-medium tracking-tight;
+  }
+
+  p, li, span {
+    @apply text-foreground/90 leading-relaxed;
+  }
+
+  a {
+    @apply text-primary hover:text-primary/80 transition-colors;
+  }
+
   /* Custom scrollbar styling */
   ::-webkit-scrollbar {
     width: 8px;
@@ -100,6 +112,19 @@
   /* Improved focus styles */
   :focus-visible {
     @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background;
+  }
+
+  /* Better table alignment */
+  table {
+    @apply w-full border-collapse;
+  }
+
+  th {
+    @apply text-left p-2 bg-muted/50;
+  }
+
+  td {
+    @apply p-2 border-b border-muted;
   }
 }
 
@@ -126,6 +151,21 @@
   
   .subtle-underline {
     @apply relative after:absolute after:bottom-0 after:left-0 after:h-[2px] after:w-0 after:bg-primary after:transition-all after:duration-300 hover:after:w-full;
+  }
+
+  /* Better alignment for cards */
+  .card-grid {
+    @apply grid gap-4 sm:grid-cols-2 lg:grid-cols-3;
+  }
+
+  /* Better text contrast */
+  .text-enhanced {
+    @apply text-foreground/90 dark:text-foreground/95;
+  }
+
+  /* Card consistent styling */
+  .styled-card {
+    @apply border border-border bg-card shadow-sm hover:shadow-md transition-shadow rounded-lg overflow-hidden;
   }
 }
 
@@ -176,4 +216,17 @@ html {
 
 .python-code {
   @apply font-mono text-sm p-4 rounded-md bg-black/80 text-blue-400 overflow-x-auto;
+}
+
+/* Star Rating Styling */
+.star-rating {
+  @apply flex items-center;
+}
+
+.star-filled {
+  @apply text-amber-500 fill-amber-500;
+}
+
+.star-empty {
+  @apply text-amber-500 fill-none;
 }
