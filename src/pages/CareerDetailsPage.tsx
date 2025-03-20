@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import Header from '@/components/Header';
@@ -6,11 +5,13 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { BriefcaseIcon, Building, LineChart, MapPin, TrendingUp, Users, GraduationCap, Award, Globe } from 'lucide-react';
+import { BriefcaseIcon, Building, LineChart, MapPin, TrendingUp, Users, GraduationCap, Award, Globe, Banknote } from 'lucide-react';
 import { coursesData } from '@/data/coursesData';
 import AnimatedTransition from '@/components/AnimatedTransition';
+import StarRating from '@/components/StarRating';
+import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 
-// Career details interface
 interface CareerDetails {
   career: string;
   courses: {
@@ -54,7 +55,6 @@ interface CareerDetails {
   };
 }
 
-// Mock detailed data for careers
 const careerDetailsData: Record<string, CareerDetails> = {
   "Software Engineer": {
     career: "Software Engineer",
@@ -188,23 +188,20 @@ const CareerDetailsPage = () => {
   const [careerDetails, setCareerDetails] = useState<CareerDetails | null>(null);
   const [activeTab, setActiveTab] = useState('overview');
   const [selectedRegion, setSelectedRegion] = useState<'india' | 'global'>('global');
+  const [isSalaryDialogOpen, setIsSalaryDialogOpen] = useState(false);
 
   useEffect(() => {
-    // Get region from URL query parameters
     const searchParams = new URLSearchParams(location.search);
     const region = searchParams.get('region');
     setSelectedRegion(region === 'india' ? 'india' : 'global');
 
     if (careerName) {
-      // In a real app, you would fetch this data from an API
       const decodedCareerName = decodeURIComponent(careerName);
       const details = careerDetailsData[decodedCareerName];
       
       if (details) {
         setCareerDetails(details);
       } else {
-        // If we don't have detailed data, create a basic entry
-        // This would be enhanced in a production app with real data
         const basicDetails: CareerDetails = {
           career: decodedCareerName,
           courses: coursesData
@@ -266,6 +263,12 @@ const CareerDetailsPage = () => {
     );
   }
 
+  const salaryDetails = {
+    entry: careerDetails.jobMarket[selectedRegion].salaryRange.entry,
+    mid: careerDetails.jobMarket[selectedRegion].salaryRange.mid,
+    senior: careerDetails.jobMarket[selectedRegion].salaryRange.senior
+  };
+
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <Header />
@@ -292,6 +295,44 @@ const CareerDetailsPage = () => {
                 </Badge>
               </div>
             </CardHeader>
+          </Card>
+
+          <Card className="border-primary/20 shadow-md mb-6 animate-fade-in overflow-hidden">
+            <CardHeader className="bg-gradient-to-r from-green-500/10 to-blue-500/10 pb-3">
+              <div className="flex justify-between items-center">
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <Banknote className="h-5 w-5 text-primary" />
+                  Salary Insights ({selectedRegion === 'india' ? 'India' : 'Global'})
+                </CardTitle>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={() => setIsSalaryDialogOpen(true)}
+                  className="text-xs"
+                >
+                  Detailed Comparison
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-3 gap-4 py-2">
+                <div className="text-center p-3 bg-muted/30 rounded-md">
+                  <h4 className="text-xs text-muted-foreground mb-1">Entry Level</h4>
+                  <p className="font-semibold text-primary">{salaryDetails.entry}</p>
+                </div>
+                <div className="text-center p-3 bg-muted/30 rounded-md">
+                  <h4 className="text-xs text-muted-foreground mb-1">Mid Level</h4>
+                  <p className="font-semibold text-primary">{salaryDetails.mid}</p>
+                </div>
+                <div className="text-center p-3 bg-muted/30 rounded-md">
+                  <h4 className="text-xs text-muted-foreground mb-1">Senior Level</h4>
+                  <p className="font-semibold text-primary">{salaryDetails.senior}</p>
+                </div>
+              </div>
+              <div className="text-xs text-center text-muted-foreground mt-2">
+                Salaries vary based on company, location, and experience
+              </div>
+            </CardContent>
           </Card>
           
           <div className="mb-6">
@@ -461,6 +502,119 @@ const CareerDetailsPage = () => {
           </Tabs>
         </AnimatedTransition>
       </main>
+
+      <Dialog open={isSalaryDialogOpen} onOpenChange={setIsSalaryDialogOpen}>
+        <DialogContent className="sm:max-w-[600px]">
+          <DialogHeader>
+            <DialogTitle>Detailed Salary Information</DialogTitle>
+            <DialogDescription>
+              Salary ranges for {careerDetails.career} in different regions and experience levels
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-6 py-4">
+            <div className="space-y-4">
+              <h3 className="text-lg font-medium flex items-center gap-2">
+                <Globe className="h-4 w-4 text-primary" /> Global Markets
+              </h3>
+              <div className="space-y-2">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-1">
+                    <p className="text-sm font-medium">Entry Level:</p>
+                    <div className="p-2 bg-muted rounded-md text-center">
+                      {careerDetails.jobMarket.global.salaryRange.entry}
+                    </div>
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-sm font-medium">Mid Level:</p>
+                    <div className="p-2 bg-muted rounded-md text-center">
+                      {careerDetails.jobMarket.global.salaryRange.mid}
+                    </div>
+                  </div>
+                </div>
+                <div className="space-y-1">
+                  <p className="text-sm font-medium">Senior Level:</p>
+                  <div className="p-2 bg-muted rounded-md text-center">
+                    {careerDetails.jobMarket.global.salaryRange.senior}
+                  </div>
+                </div>
+                <div className="pt-2">
+                  <h4 className="text-sm font-medium mb-1">Top Paying Locations:</h4>
+                  <div className="flex flex-wrap gap-2 mt-2">
+                    {careerDetails.jobMarket.global.locations.slice(0, 3).map((location, i) => (
+                      <Badge key={i} variant="outline" className="bg-green-500/10">
+                        <MapPin className="h-3 w-3 mr-1" />
+                        {location}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              <h3 className="text-lg font-medium flex items-center gap-2">
+                <MapPin className="h-4 w-4 text-primary" /> Indian Market
+              </h3>
+              <div className="space-y-2">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-1">
+                    <p className="text-sm font-medium">Entry Level:</p>
+                    <div className="p-2 bg-muted rounded-md text-center">
+                      {careerDetails.jobMarket.india.salaryRange.entry}
+                    </div>
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-sm font-medium">Mid Level:</p>
+                    <div className="p-2 bg-muted rounded-md text-center">
+                      {careerDetails.jobMarket.india.salaryRange.mid}
+                    </div>
+                  </div>
+                </div>
+                <div className="space-y-1">
+                  <p className="text-sm font-medium">Senior Level:</p>
+                  <div className="p-2 bg-muted rounded-md text-center">
+                    {careerDetails.jobMarket.india.salaryRange.senior}
+                  </div>
+                </div>
+                <div className="pt-2">
+                  <h4 className="text-sm font-medium mb-1">Top Paying Cities:</h4>
+                  <div className="flex flex-wrap gap-2 mt-2">
+                    {careerDetails.jobMarket.india.locations.slice(0, 3).map((location, i) => (
+                      <Badge key={i} variant="outline" className="bg-green-500/10">
+                        <MapPin className="h-3 w-3 mr-1" />
+                        {location}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <h4 className="text-sm font-medium mb-1">Salary Growth Factors:</h4>
+              <ul className="space-y-1 text-sm">
+                <li className="flex items-center gap-2">
+                  <div className="w-1.5 h-1.5 rounded-full bg-primary"></div>
+                  <span>Specialization in high-demand areas</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <div className="w-1.5 h-1.5 rounded-full bg-primary"></div>
+                  <span>Advanced certifications and degrees</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <div className="w-1.5 h-1.5 rounded-full bg-primary"></div>
+                  <span>Leadership and management experience</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <div className="w-1.5 h-1.5 rounded-full bg-primary"></div>
+                  <span>Industry shifts and market demand</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
