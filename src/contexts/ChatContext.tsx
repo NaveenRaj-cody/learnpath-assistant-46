@@ -7,7 +7,7 @@ export type SubjectArea = 'engineering' | 'medicine' | 'business' | 'arts' | 'sc
 
 export interface Message {
   id: string;
-  content: string; // Changed from text to content to match MessageBubble component
+  content: string;
   sender: 'user' | 'bot';
   timestamp: Date;
   status?: 'sending' | 'sent' | 'error';
@@ -16,7 +16,7 @@ export interface Message {
 interface ChatContextType {
   messages: Message[];
   loading: boolean;
-  isTyping: boolean; // Added this property
+  isTyping: boolean;
   sendMessage: (text: string) => Promise<void>;
   filter: {
     level: CourseLevel;
@@ -27,8 +27,8 @@ interface ChatContextType {
     subject: SubjectArea;
   }>>;
   clearMessages: () => void;
-  clearChat: () => void; // Added this property
-  setCourseFilter: (filter: { level: CourseLevel, subject: SubjectArea }) => void; // Added this property
+  clearChat: () => void;
+  setCourseFilter: (filter: { level: CourseLevel, subject: SubjectArea }) => void;
 }
 
 const ChatContext = createContext<ChatContextType | undefined>(undefined);
@@ -48,7 +48,7 @@ interface ChatProviderProps {
 export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
-  const [isTyping, setIsTyping] = useState<boolean>(false); // Added isTyping state
+  const [isTyping, setIsTyping] = useState<boolean>(false);
   const [filter, setFilter] = useState<{
     level: CourseLevel;
     subject: SubjectArea;
@@ -91,14 +91,14 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
     // Add user message
     const userMessage: Message = {
       id: Date.now().toString(),
-      content: text, // Changed from text to content
+      content: text,
       sender: 'user',
       timestamp: new Date(),
       status: 'sent'
     };
     
     setMessages(prev => [...prev, userMessage]);
-    setIsTyping(true); // Set typing to true when sending message
+    setIsTyping(true);
     
     try {
       // Process message and get response
@@ -107,7 +107,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
       // Add bot message
       const botMessage: Message = {
         id: (Date.now() + 1).toString(),
-        content: response, // Changed from text to content
+        content: response,
         sender: 'bot',
         timestamp: new Date(),
         status: 'sent'
@@ -120,7 +120,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
       // Add error message
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
-        content: "I'm sorry, I encountered an error processing your request. Please try again.", // Changed from text to content
+        content: "I'm sorry, I encountered an error processing your request. Please try again.",
         sender: 'bot',
         timestamp: new Date(),
         status: 'error'
@@ -129,7 +129,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
       setMessages(prev => [...prev, errorMessage]);
     } finally {
       setLoading(false);
-      setIsTyping(false); // Set typing to false after message is sent
+      setIsTyping(false);
     }
   };
 
