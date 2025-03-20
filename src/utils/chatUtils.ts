@@ -1,5 +1,6 @@
 import { CourseLevel, SubjectArea } from '@/contexts/ChatContext';
-import { coursesData } from '@/data/coursesData';
+import { Course } from '@/data/coursesData';
+import { getAllCourses } from './dbUtils';
 
 // Helper function to get a random item from an array
 const getRandomItem = <T>(array: T[]): T => {
@@ -7,10 +8,54 @@ const getRandomItem = <T>(array: T[]): T => {
 };
 
 // Function to find courses based on user's query and filters
-export const findRelevantCourses = (
+export const findRelevantCourses = async (
   query: string, 
   filter: { level: CourseLevel; subject: SubjectArea }
-) => {
+): Promise<Course[]> => {
+  try {
+    // Get courses from database
+    const courses = await getAllCourses();
+    
+    let filteredCourses = [...courses];
+    
+    // Apply level filter
+    if (filter.level !== 'all') {
+      filteredCourses = filteredCourses.filter(course => 
+        course.level === filter.level
+      );
+    }
+    
+    // Apply subject filter
+    if (filter.subject !== 'all') {
+      filteredCourses = filteredCourses.filter(course => 
+        course.field === filter.subject
+      );
+    }
+    
+    // Apply text search if query is not empty
+    if (query.trim()) {
+      const searchTerms = query.toLowerCase().split(' ');
+      filteredCourses = filteredCourses.filter(course => {
+        const courseText = `${course.name} ${course.description} ${course.field} ${course.level}`.toLowerCase();
+        return searchTerms.some(term => courseText.includes(term));
+      });
+    }
+    
+    return filteredCourses;
+  } catch (error) {
+    console.error('Error finding relevant courses:', error);
+    // Fallback to static data if database fails
+    const { coursesData } = await import('../data/coursesData');
+    return findRelevantCoursesFromStatic(query, filter, coursesData);
+  }
+};
+
+// Fallback function using static data
+const findRelevantCoursesFromStatic = (
+  query: string,
+  filter: { level: CourseLevel; subject: SubjectArea },
+  coursesData: Course[]
+): Course[] => {
   let filteredCourses = [...coursesData];
   
   // Apply level filter
@@ -39,11 +84,11 @@ export const findRelevantCourses = (
   return filteredCourses;
 };
 
-// Function to process the user message and generate a response
-export const processMessage = (
+// Process message now handles async operations
+export const processMessage = async (
   message: string,
   filter: { level: CourseLevel; subject: SubjectArea }
-): string => {
+): Promise<string> => {
   const lowerMessage = message.toLowerCase();
   
   // Check if the message is asking about courses
@@ -53,33 +98,38 @@ export const processMessage = (
     lowerMessage.includes('degree') ||
     lowerMessage.includes('study')
   ) {
-    const courses = findRelevantCourses(message, filter);
-    
-    if (courses.length === 0) {
-      return "I couldn't find any courses matching your criteria in India. Could you try a different search or be more specific about what you're looking for?";
-    }
-    
-    // Limit to 3 courses for a concise response
-    const displayCourses = courses.slice(0, 3);
-    
-    let response = "Here are some courses in India that might interest you:\n\n";
-    
-    displayCourses.forEach((course, index) => {
-      response += `**${course.name}** (${course.level})\n`;
-      response += `${course.description}\n`;
-      response += `**Duration:** ${course.duration}\n`;
-      response += `**Career Prospects in India:** ${course.careerProspects.join(', ')}\n`;
+    try {
+      const courses = await findRelevantCourses(message, filter);
       
-      if (index < displayCourses.length - 1) {
-        response += "\n---\n\n";
+      if (courses.length === 0) {
+        return "I couldn't find any courses matching your criteria in India. Could you try a different search or be more specific about what you're looking for?";
       }
-    });
-    
-    if (courses.length > 3) {
-      response += "\n\nThere are more courses available in Indian universities. Would you like me to show you more options or refine your search?";
+      
+      // Limit to 3 courses for a concise response
+      const displayCourses = courses.slice(0, 3);
+      
+      let response = "Here are some courses in India that might interest you:\n\n";
+      
+      displayCourses.forEach((course, index) => {
+        response += `**${course.name}** (${course.level})\n`;
+        response += `${course.description}\n`;
+        response += `**Duration:** ${course.duration}\n`;
+        response += `**Career Prospects in India:** ${course.careerProspects.join(', ')}\n`;
+        
+        if (index < displayCourses.length - 1) {
+          response += "\n---\n\n";
+        }
+      });
+      
+      if (courses.length > 3) {
+        response += "\n\nThere are more courses available in Indian universities. Would you like me to show you more options or refine your search?";
+      }
+      
+      return response;
+    } catch (error) {
+      console.error('Error processing course message:', error);
+      return "I'm having trouble accessing the course database at the moment. Please try again later.";
     }
-    
-    return response;
   }
   
   // Check if the message is asking about colleges

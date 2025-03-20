@@ -1,5 +1,4 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { cn } from "@/lib/utils";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -7,10 +6,12 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
-import { BriefcaseIcon, BookOpen, Building, Search, GraduationCap } from 'lucide-react';
-import { coursesData } from '@/data/coursesData';
+import { BriefcaseIcon, BookOpen, Building, Search, GraduationCap, Loader2 } from 'lucide-react';
+import { Course } from '@/data/coursesData';
 import { useChat, CourseLevel, SubjectArea } from '@/contexts/ChatContext';
 import AnimatedTransition from './AnimatedTransition';
+import { useToast } from "@/hooks/use-toast";
+import { getAllCourses } from '@/utils/dbUtils';
 
 interface CourseExplorerProps {
   onAskAboutCourse?: (courseName: string) => void;
@@ -18,12 +19,40 @@ interface CourseExplorerProps {
 
 const CourseExplorer: React.FC<CourseExplorerProps> = ({ onAskAboutCourse }) => {
   const { setCourseFilter } = useChat();
+  const { toast } = useToast();
   const [searchTerm, setSearchTerm] = useState('');
   const [levelFilter, setLevelFilter] = useState<CourseLevel>('all');
   const [fieldFilter, setFieldFilter] = useState<SubjectArea>('all');
   const [selectedTab, setSelectedTab] = useState('courses');
+  const [courses, setCourses] = useState<Course[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const filteredCourses = coursesData.filter(course => {
+  useEffect(() => {
+    const fetchCourses = async () => {
+      try {
+        setLoading(true);
+        const data = await getAllCourses();
+        setCourses(data);
+      } catch (error) {
+        console.error('Error fetching courses:', error);
+        toast({
+          title: "Error",
+          description: "Failed to load courses. Using fallback data.",
+          variant: "destructive"
+        });
+        // Fallback to static data if database connection fails
+        import('@/data/coursesData').then(module => {
+          setCourses(module.coursesData);
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCourses();
+  }, [toast]);
+
+  const filteredCourses = courses.filter(course => {
     const matchesSearch = searchTerm === '' || 
       course.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       course.description.toLowerCase().includes(searchTerm.toLowerCase());
@@ -39,6 +68,15 @@ const CourseExplorer: React.FC<CourseExplorerProps> = ({ onAskAboutCourse }) => 
     setFieldFilter(field);
     setCourseFilter({ level, subject: field });
   };
+
+  if (loading) {
+    return (
+      <div className="w-full flex flex-col items-center justify-center py-20">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <p className="mt-4 text-muted-foreground">Loading courses...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="w-full max-w-6xl mx-auto">
