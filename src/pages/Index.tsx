@@ -1,8 +1,7 @@
-
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Link, useNavigate } from "react-router-dom";
-import { BriefcaseIcon, BookOpen, Building, GraduationCap, ChevronDown, LogIn, AlertCircle } from "lucide-react";
+import { BriefcaseIcon, BookOpen, Building, GraduationCap, LogIn, AlertCircle } from "lucide-react";
 import Header from '@/components/Header';
 import AnimatedTransition from '@/components/AnimatedTransition';
 import ChatInterface from '@/components/ChatInterface';
@@ -140,13 +139,6 @@ const HeroSection = () => {
             )}
           </div>
         </AnimatedTransition>
-        
-        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 animate-bounce">
-          <Button variant="outline" size="sm" className="rounded-full glass-panel hover:shadow-lg active:scale-95 transition-all">
-            <span className="text-xs">Explore More</span>
-            <ChevronDown className="h-5 w-5" />
-          </Button>
-        </div>
         
         <CoursesModal 
           isOpen={isCoursesModalOpen} 

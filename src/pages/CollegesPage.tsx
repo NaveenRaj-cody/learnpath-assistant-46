@@ -12,6 +12,7 @@ import { coursesData, College } from '@/data/coursesData';
 import AnimatedTransition from '@/components/AnimatedTransition';
 import CoursesModal from '@/components/CoursesModal';
 import { useToast } from "@/hooks/use-toast";
+import StarRating from '@/components/StarRating';
 
 // Define mock data for states and districts
 const statesData = [
@@ -21,6 +22,13 @@ const statesData = [
   { name: "Delhi", districts: ["New Delhi", "North Delhi", "South Delhi", "East Delhi"] },
   { name: "Uttar Pradesh", districts: ["Lucknow", "Kanpur", "Agra", "Varanasi"] }
 ];
+
+// Mock ratings for colleges
+const getCollegeRating = (collegeName: string): number => {
+  // Simulate different ratings for different colleges
+  const nameSum = collegeName.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+  return 3 + (nameSum % 20) / 10; // Generates ratings between 3.0 and 5.0
+};
 
 const CollegesPage = () => {
   const navigate = useNavigate();
@@ -113,7 +121,7 @@ const CollegesPage = () => {
       
       <main className="flex-1 container mx-auto py-8 px-4">
         <AnimatedTransition>
-          <h1 className="text-3xl font-bold mb-8 text-gradient">Top Colleges</h1>
+          <h1 className="text-3xl font-bold mb-8 text-gradient">Colleges</h1>
           
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
             <div className="lg:col-span-1">
@@ -270,6 +278,7 @@ const CollegesPage = () => {
                             {collegeTypeFilter !== 'all' ? collegeTypeFilter : 
                             coursesData.find(course => course.topColleges.some(c => c.name === college.name))?.field || 'General'}
                           </Badge>
+                          <StarRating rating={getCollegeRating(college.name)} />
                         </div>
                         <CardTitle className="text-lg">{college.name}</CardTitle>
                         <CardDescription className="flex items-center gap-1">
