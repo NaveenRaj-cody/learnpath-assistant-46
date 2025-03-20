@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Header from '@/components/Header';
@@ -51,7 +50,6 @@ const CollegeDetailsPage = () => {
     );
   }
 
-  // Generate a random star rating between 4.0 and 5.0
   const starRating = (4 + Math.random()).toFixed(1);
 
   return (
@@ -87,9 +85,6 @@ const CollegeDetailsPage = () => {
                     <span className="ml-1 text-sm">{starRating}</span>
                   </div>
                 </div>
-                <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20">
-                  {collegeDetails.ranking}
-                </Badge>
               </div>
             </CardHeader>
           </Card>

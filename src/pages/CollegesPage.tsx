@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Header from '@/components/Header';
@@ -14,7 +13,6 @@ import CoursesModal from '@/components/CoursesModal';
 import { useToast } from "@/hooks/use-toast";
 import StarRating from '@/components/StarRating';
 
-// Define mock data for states and districts
 const statesData = [
   { name: "Karnataka", districts: ["Bangalore", "Mysore", "Belgaum", "Mangalore"] },
   { name: "Tamil Nadu", districts: ["Chennai", "Coimbatore", "Madurai", "Salem"] },
@@ -23,11 +21,9 @@ const statesData = [
   { name: "Uttar Pradesh", districts: ["Lucknow", "Kanpur", "Agra", "Varanasi"] }
 ];
 
-// Mock ratings for colleges
 const getCollegeRating = (collegeName: string): number => {
-  // Simulate different ratings for different colleges
   const nameSum = collegeName.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-  return 3 + (nameSum % 20) / 10; // Generates ratings between 3.0 and 5.0
+  return 3 + (nameSum % 20) / 10;
 };
 
 const CollegesPage = () => {
@@ -47,24 +43,18 @@ const CollegesPage = () => {
     index === self.findIndex((c) => c.name === college.name)
   );
   
-  // Extract all unique fields as college types
   const uniqueCollegeTypes = [...new Set(coursesData.map(course => course.field))].sort();
   
-  // College status types
   const collegeStatusTypes = ['government', 'private', 'autonomous', 'non-autonomous'];
   
-  // Get available districts based on selected state
   const availableDistricts = stateFilter === 'all' 
     ? [] 
     : statesData.find(state => state.name === stateFilter)?.districts || [];
   
-  // Filter colleges based on all criteria
   const filteredColleges = uniqueColleges.filter(college => {
     const matchesSearch = searchTerm === '' || 
       college.name.toLowerCase().includes(searchTerm.toLowerCase());
     
-    // In a real application, colleges would have type and status properties
-    // For this demo, we'll simulate by checking if the name includes certain keywords
     const matchesType = collegeTypeFilter === 'all' || 
       coursesData.some(course => 
         course.field === collegeTypeFilter && 
@@ -77,11 +67,9 @@ const CollegesPage = () => {
       (collegeStatusFilter === 'autonomous' && (college.name.includes('University') || college.name.includes('Institute'))) ||
       (collegeStatusFilter === 'non-autonomous' && !college.name.includes('University') && !college.name.includes('Institute'));
     
-    // For demo purposes, we'll match states based on college location containing the state name
     const matchesState = stateFilter === 'all' || 
       college.location.includes(stateFilter);
     
-    // For demo purposes, we'll match districts if they appear in the college location
     const matchesDistrict = districtFilter === 'all' || 
       college.location.includes(districtFilter);
     
@@ -109,7 +97,7 @@ const CollegesPage = () => {
       setCollegeStatusFilter(value);
     } else if (type === 'state') {
       setStateFilter(value);
-      setDistrictFilter('all'); // Reset district when state changes
+      setDistrictFilter('all');
     } else if (type === 'district') {
       setDistrictFilter(value);
     }
@@ -287,12 +275,6 @@ const CollegesPage = () => {
                         </CardDescription>
                       </CardHeader>
                       <CardContent className="pb-2">
-                        <div className="text-sm">
-                          <div className="flex justify-between mb-1">
-                            <span className="text-muted-foreground">Ranking:</span>
-                            <span className="font-medium">{college.ranking}</span>
-                          </div>
-                        </div>
                       </CardContent>
                       <CardFooter>
                         <Button 
