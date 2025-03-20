@@ -3,13 +3,12 @@ import React from 'react';
 import { cn } from "@/lib/utils";
 import { Avatar } from "@/components/ui/avatar";
 import { Loader2 } from "lucide-react";
+import { Message as ChatMessage } from '@/contexts/ChatContext';
 
-export interface Message {
-  id: string;
-  content: string;
-  sender: 'user' | 'bot';
-  timestamp: Date;
-  status?: 'sending' | 'sent' | 'error';
+export interface Message extends ChatMessage {
+  // This extends the ChatMessage type from ChatContext
+  // We don't need to add any additional properties since we've already
+  // matched the structure in the ChatContext
 }
 
 interface MessageBubbleProps {

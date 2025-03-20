@@ -19,7 +19,7 @@ import ThreeDBackground from '@/components/ThreeDBackground';
 import { ChatProvider } from '@/contexts/ChatContext';
 import { AuthProvider } from '@/contexts/AuthContext';
 import { initializeDatabaseWithData } from '@/utils/dbInitializer';
-import { useToast } from '@/components/ui/use-toast';
+import { useToast } from '@/hooks/use-toast';
 import { Toaster as Sonner } from 'sonner';
 
 // Create a client
